@@ -1,0 +1,103 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type Human struct {
+	Sex       string  `json:"sex"`
+	Age       int     `json:"age"`
+	IPK       float64 `json:"ipk"`
+	IsInvalid bool    `json:"is_invalid"`
+}
+
+type Doc struct {
+	Document string `json:"document"`
+}
+
+type Pens interface {
+	Check(h *Human, d *Doc) string
+}
+
+type FZ400 struct{}
+
+func (f *FZ400) Check(h *Human, d *Doc) string {
+	switch h.Sex {
+	case "male":
+		if h.Age > 55 && h.IPK > 30 && !h.IsInvalid {
+			return fmt.Sprintf("Проверить право на СПН: Гражданину уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
+		} else if h.IsInvalid {
+			return fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+		} else {
+			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+		}
+	case "female":
+		if h.Age > 55 {
+			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+		} else {
+			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+		}
+	}
+	return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+}
+
+type FZ166 struct{}
+
+func (f *FZ166) Check(h *Human, d *Doc) string {
+	switch h.Sex {
+	case "male":
+		if h.Age > 55 {
+			return fmt.Sprintf("Гражданину уже %d лет. Через %d лет можно получить социальную пенсию", h.Age, 70-h.Age)
+		} else {
+			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+		}
+	case "female":
+		if h.Age > 55 {
+			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+		} else {
+			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+		}
+	}
+	return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+}
+
+func apiHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var h Human
+	if err := json.NewDecoder(r.Body).Decode(&h); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	d := &Doc{Document: "document"}
+	f400 := &FZ400{}
+	f166 := &FZ166{}
+
+	//result := fmt.Sprintf("FZ400:\nFZ166:\n%s, %s\n%s, %s", f400.Check(&h, d), h.Sex, f166.Check(&h, d), h.Sex)
+	//
+	result := struct {
+		FZ400 string `json:"fz400"`
+		FZ166 string `json:"fz166"`
+	}{
+		FZ400: f400.Check(&h, d),
+		FZ166: f166.Check(&h, d),
+	}
+	json.NewEncoder(w).Encode(result)
+}
+
+func main() {
+	// f400 := &FZ400{}
+	// f166 := &FZ166{}
+	// h := &Human{Sex: "male", Age: 56, IPK: 31}
+	// d := &Doc{Document: "document"}
+	// fmt.Println(f400.Check(h, d))
+	// fmt.Println(f166.Check(h, d))
+	http.HandleFunc("/api", apiHandler)
+	fmt.Println("Сервер запущен")
+	http.ListenAndServe(":8080", nil)
+}
