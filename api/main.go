@@ -62,9 +62,20 @@ func (f *FZ166) Check(h *Human, d *Doc) string {
 	}
 	return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
 }
-
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+}
 func apiHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	enableCORS(w) // устанавливаем заголовки
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK) // просто OK для preflight
+		return
+	}
+
+	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -87,7 +98,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		FZ400: f400.Check(&h, d),
 		FZ166: f166.Check(&h, d),
 	}
-	json.NewEncoder(w).Encode(result)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -99,5 +112,7 @@ func main() {
 	// fmt.Println(f166.Check(h, d))
 	http.HandleFunc("/api", apiHandler)
 	fmt.Println("Сервер запущен")
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		fmt.Println("Ошибка запуска сервера:", err)
+	}
 }
