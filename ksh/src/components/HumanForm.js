@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const HumanForm = () => {
+const HumanForm = ({ onResponse }) => {
+  // получаем колбэк
   const [human, setHuman] = useState({
     sex: "male",
-    age: 55,
-    ipk: 35,
+    age: 20,
+    ipk: 3.5,
     is_invalid: false,
   });
-  const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Обработчик изменения полей
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = type === "checkbox" ? checked : value;
@@ -29,104 +27,84 @@ const HumanForm = () => {
     setHuman((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  // Отправка данных при любом изменении human
   useEffect(() => {
     const sendData = async () => {
       setLoading(true);
-      setError(null);
       try {
         const response = await axios.post("http://localhost:8080/api", human);
-        setResponseData(response.data);
+        onResponse(response.data); // отправляем ответ наверх
       } catch (err) {
         console.error(err);
-        setError("Ошибка отправки");
-        setResponseData(null);
+        onResponse({ error: "Ошибка отправки" });
       } finally {
         setLoading(false);
       }
     };
 
-    // Дебаунс: ждём 500 мс после последнего изменения перед отправкой
-    const timeoutId = setTimeout(sendData, 1000);
+    const timeoutId = setTimeout(sendData, 500);
     return () => clearTimeout(timeoutId);
-  }, [human]); // срабатывает при каждом изменении human
+  }, [human, onResponse]); // добавляем onResponse в зависимости
 
   return (
-    <div>
-      <form>
-        {/* Радиокнопки пола */}
-        <div>
-          <label>Пол:</label>
-          <label>
-            <input
-              type="radio"
-              name="sex"
-              value="male"
-              checked={human.sex === "male"}
-              onChange={handleChange}
-            />
-            Мужской
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="sex"
-              value="female"
-              checked={human.sex === "female"}
-              onChange={handleChange}
-            />
-            Женский
-          </label>
-        </div>
-
-        <div>
-          <label>Возраст:</label>
+    <form>
+      <div>
+        <label>Пол:</label>
+        <label>
           <input
-            type="number"
-            name="age"
-            value={human.age}
+            type="radio"
+            name="sex"
+            value="male"
+            checked={human.sex === "male"}
             onChange={handleChange}
           />
-        </div>
-
-        <div>
-          <label>ИПК:</label>
+          Мужской
+        </label>
+        <label>
           <input
-            type="number"
-            step="0.01"
-            name="ipk"
-            value={human.ipk}
+            type="radio"
+            name="sex"
+            value="female"
+            checked={human.sex === "female"}
             onChange={handleChange}
           />
-        </div>
-
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              name="is_invalid"
-              checked={human.is_invalid}
-              onChange={handleChange}
-            />
-            Инвалидность
-          </label>
-        </div>
-      </form>
-
-      <div
-        style={{ marginTop: "20px", border: "1px solid #ccc", padding: "10px" }}
-      >
-        <h3>Ответ от сервера (обновляется автоматически):</h3>
-        {loading && <p>Загрузка...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {!loading && !error && responseData && (
-          <pre>{JSON.stringify(responseData, null, 2)}</pre>
-        )}
-        {!loading && !error && !responseData && (
-          <p>Изменяйте поля – ответ появится автоматически.</p>
-        )}
+          Женский
+        </label>
       </div>
-    </div>
+
+      <div>
+        <label>Возраст:</label>
+        <input
+          type="number"
+          name="age"
+          value={human.age}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label>ИПК:</label>
+        <input
+          type="number"
+          step="0.01"
+          name="ipk"
+          value={human.ipk}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            name="is_invalid"
+            checked={human.is_invalid}
+            onChange={handleChange}
+          />
+          Инвалидность
+        </label>
+      </div>
+      {loading && <p>Отправка...</p>}
+    </form>
   );
 };
 

@@ -1,15 +1,22 @@
+import { useState } from "react";
 import "./App.css";
-import HumanForm from "./components/HumanForm"; // если компонент называется HumanForm, иначе Button
+import HumanForm from "./components/HumanForm";
 
 function App() {
+  const [serverResponse, setServerResponse] = useState(null);
+
   return (
     <div className="App">
       <div className="area area1">
-        <HumanForm />
+        <HumanForm onResponse={setServerResponse} />
       </div>
       <div className="area area2">
-        <h3>Область 2</h3>
-        <p>Здесь может быть что-то ещё (например, график или список).</p>
+        <h3>Ответ от сервера:</h3>
+        {serverResponse ? (
+          <pre>{JSON.stringify(serverResponse, null, 2)}</pre>
+        ) : (
+          <p>Пока нет ответа. Измените поля формы.</p>
+        )}
       </div>
       <div className="area area3">
         <h3>Область 3</h3>
