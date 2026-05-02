@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const HumanForm = () => {
   const [human, setHuman] = useState({
     sex: "male",
-    age: 56,
+    age: 55,
     ipk: 35,
     is_invalid: false,
   });
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Обработчик изменения полей
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = type === "checkbox" ? checked : value;
@@ -24,30 +26,35 @@ const HumanForm = () => {
       if (isNaN(newValue)) newValue = 0.0;
     }
 
-    setHuman({
-      ...human,
-      [name]: newValue,
-    });
+    setHuman((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await axios.post("http://localhost:8080/api", human);
-      setResponseData(response.data);
-    } catch (error) {
-      console.error(error);
-      setResponseData({ error: "Ошибка отправки" });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Отправка данных при любом изменении human
+  useEffect(() => {
+    const sendData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.post("http://localhost:8080/api", human);
+        setResponseData(response.data);
+      } catch (err) {
+        console.error(err);
+        setError("Ошибка отправки");
+        setResponseData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Дебаунс: ждём 500 мс после последнего изменения перед отправкой
+    const timeoutId = setTimeout(sendData, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [human]); // срабатывает при каждом изменении human
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        {/* радиокнопки пола */}
+      <form>
+        {/* Радиокнопки пола */}
         <div>
           <label>Пол:</label>
           <label>
@@ -104,20 +111,19 @@ const HumanForm = () => {
             Инвалидность
           </label>
         </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Отправка..." : "Отправить"}
-        </button>
       </form>
 
       <div
         style={{ marginTop: "20px", border: "1px solid #ccc", padding: "10px" }}
       >
-        <h3>Ответ от сервера:</h3>
-        {responseData ? (
+        <h3>Ответ от сервера (обновляется автоматически):</h3>
+        {loading && <p>Загрузка...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {!loading && !error && responseData && (
           <pre>{JSON.stringify(responseData, null, 2)}</pre>
-        ) : (
-          <p>Пока нет ответа. Отправьте форму.</p>
+        )}
+        {!loading && !error && !responseData && (
+          <p>Изменяйте поля – ответ появится автоматически.</p>
         )}
       </div>
     </div>

@@ -1,12 +1,24 @@
 import "./App.css";
-import Button from "./components/Button";
+import HumanForm from "./components/HumanForm"; // если компонент называется HumanForm, иначе Button
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <Button />
-      </header>
+      <div className="area area1">
+        <HumanForm />
+      </div>
+      <div className="area area2">
+        <h3>Область 2</h3>
+        <p>Здесь может быть что-то ещё (например, график или список).</p>
+      </div>
+      <div className="area area3">
+        <h3>Область 3</h3>
+        <p>Дополнительная информация.</p>
+      </div>
+      <div className="area area4">
+        <h3>Область 4</h3>
+        <p>Логи, уведомления и т.д.</p>
+      </div>
     </div>
   );
 }
