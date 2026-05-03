@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import HumanForm from "./components/HumanForm";
+import CheckServe from "./components/CheckServe";
 
 function App() {
   const [serverResponse, setServerResponse] = useState(null);
@@ -19,12 +20,10 @@ function App() {
         )}
       </div>
       <div className="area area3">
-        <h3>Область 3</h3>
-        <p>Дополнительная информация.</p>
+        <CheckServe />
       </div>
       <div className="area area4">
-        <h3>Область 4</h3>
-        <p>Логи, уведомления и т.д.</p>
+        <CheckServe />
       </div>
     </div>
   );
