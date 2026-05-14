@@ -7,10 +7,11 @@ import (
 )
 
 type Human struct {
-	Sex       string  `json:"sex"`
-	Age       int     `json:"age"`
-	IPK       float64 `json:"ipk"`
-	IsInvalid bool    `json:"is_invalid"`
+	Sex          string  `json:"sex"`
+	Age          int     `json:"age"`
+	IPK          float64 `json:"ipk"`
+	IsInvalid    bool    `json:"is_invalid"`
+	InvalidGroup string  `json:"invalid_group"`
 }
 
 type Doc struct {
@@ -26,16 +27,22 @@ type FZ400 struct{}
 func (f *FZ400) Check(h *Human, d *Doc) string {
 	switch h.Sex {
 	case "male":
-		if h.Age > 55 && h.IPK > 30 && !h.IsInvalid {
+		if h.Age > 65 && h.IPK > 30 && !h.IsInvalid {
 			return fmt.Sprintf("Проверить право на СПН: Гражданину уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
 		} else if h.IsInvalid {
 			return fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+		} else if h.InvalidGroup == "I" {
+			return fmt.Sprintf("FZ400: Выбрана группа инвалидности I %s, %d", h.Sex, h.Age)
 		} else {
 			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
 		}
 	case "female":
-		if h.Age > 55 {
-			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+		if h.Age > 60 && h.IPK > 30 && !h.IsInvalid {
+			return fmt.Sprintf("Проверить право на СПН: Гражданин уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
+		} else if h.IsInvalid {
+			return fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+		} else if h.InvalidGroup == "II" {
+			return fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age)
 		} else {
 			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
 		}

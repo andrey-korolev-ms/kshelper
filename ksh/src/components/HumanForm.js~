@@ -30,10 +30,7 @@ const HumanForm = ({ onResponse }) => {
     const sendData = async () => {
       setLoading(true);
       try {
-        const response = await axios.post(
-          "http://192.168.0.54:8080/api",
-          human,
-        );
+        const response = await axios.post("http://localhost:8080/api", human);
         onResponse(response.data);
       } catch (err) {
         console.error(err);
@@ -112,45 +109,6 @@ const HumanForm = ({ onResponse }) => {
         />
         <label className="form-check-label">Инвалидность</label>
       </div>
-      {human.is_invalid && (
-        <>
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="I"
-              checked={human.invalid_group === "I"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">I группа</label>
-          </div>
-
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="II"
-              checked={human.invalid_group === "II"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">II группа</label>
-          </div>
-
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="III"
-              checked={human.invalid_group === "III"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">III группа</label>
-          </div>
-        </>
-      )}
 
       {loading && <p>Отправка...</p>}
     </form>

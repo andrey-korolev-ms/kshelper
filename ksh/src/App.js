@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import HumanForm from "./components/HumanForm";
 import CheckServe from "./components/CheckServe";
+import TempStrings from "./components/TempStrings";
 
 function App() {
   const [serverResponse, setServerResponse] = useState(null);
@@ -23,7 +24,7 @@ function App() {
         <CheckServe />
       </div>
       <div className="area area4">
-        <CheckServe />
+        <TempStrings />
       </div>
     </div>
   );
