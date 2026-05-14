@@ -31,7 +31,7 @@ function TodoItem({ text }) {
     >
       <label>
         <input type="checkbox" onChange={handleCheckboxChange} />
-        {text}
+        Какой-то текст{text}
       </label>
     </div>
   );

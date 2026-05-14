@@ -7,6 +7,7 @@ const HumanForm = ({ onResponse }) => {
     age: 56,
     ipk: 35,
     is_invalid: false,
+    invalid_group: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +50,13 @@ const HumanForm = ({ onResponse }) => {
 
   return (
     <form className="container">
-      <div className="mb-3">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "auto 1fr 1fr 1fr",
+          gap: "8px",
+        }}
+      >
         <div className="form-check form-check-inline">
           <label className="form-check-label">
             <input
@@ -77,82 +84,90 @@ const HumanForm = ({ onResponse }) => {
             Женский
           </label>
         </div>
-      </div>
 
-      <div className="mb-3">
-        <label className="form-label">Возраст:</label>
-        <input
-          type="number"
-          name="age"
-          className="form-control"
-          value={human.age}
-          onChange={handleChange}
-        />
-      </div>
+        <div>
+          <label className="form-label">Возраст:</label>
+          <input
+            type="number"
+            name="age"
+            className="form-control"
+            value={human.age}
+            onChange={handleChange}
+          />
+        </div>
 
-      <div className="mb-3">
-        <label className="form-label">ИПК:</label>
-        <input
-          type="number"
-          step="0.01"
-          name="ipk"
-          className="form-control"
-          value={human.ipk}
-          onChange={handleChange}
-        />
-      </div>
+        <div>
+          <label className="form-label">ИПК:</label>
+          <input
+            type="number"
+            step="0.01"
+            name="ipk"
+            className="form-control"
+            value={human.ipk}
+            onChange={handleChange}
+          />
+        </div>
 
-      <div className="mb-3 form-check">
-        <input
-          className="form-check-input"
-          type="checkbox"
-          name="is_invalid"
-          checked={human.is_invalid}
-          onChange={handleChange}
-        />
-        <label className="form-check-label">Инвалидность</label>
-      </div>
-      {human.is_invalid && (
-        <>
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="I"
-              checked={human.invalid_group === "I"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">I группа</label>
+        <div>
+          <input
+            className="form-check-input"
+            type="checkbox"
+            name="is_invalid"
+            checked={human.is_invalid}
+            onChange={handleChange}
+          />
+          <label className="form-check-label">Инвалидность</label>
+        </div>
+
+        {human.is_invalid && (
+          <div
+            className="mb-3"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "4px",
+            }}
+          >
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="invalid_group"
+                value="I"
+                checked={human.invalid_group === "I"}
+                onChange={handleChange}
+              />
+              <label className="form-check-label">I гр.</label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="invalid_group"
+                value="II"
+                checked={human.invalid_group === "II"}
+                onChange={handleChange}
+              />
+              <label className="form-check-label">II гр.</label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="invalid_group"
+                value="III"
+                checked={human.invalid_group === "III"}
+                onChange={handleChange}
+              />
+              <label className="form-check-label">III гр.</label>
+            </div>
           </div>
+        )}
 
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="II"
-              checked={human.invalid_group === "II"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">II группа</label>
-          </div>
-
-          <div className="mb-3 form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="invalid_group"
-              value="III"
-              checked={human.invalid_group === "III"}
-              onChange={handleChange}
-            />
-            <label className="form-check-label">III группа</label>
-          </div>
-        </>
-      )}
-
-      {loading && <p>Отправка...</p>}
+        {loading && <p style={{ gridColumn: "span 5" }}>Отправка...</p>}
+      </div>
     </form>
   );
 };

@@ -29,10 +29,10 @@ func (f *FZ400) Check(h *Human, d *Doc) string {
 	case "male":
 		if h.Age > 65 && h.IPK > 30 && !h.IsInvalid {
 			return fmt.Sprintf("Проверить право на СПН: Гражданину уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
-		} else if h.IsInvalid {
-			return fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
-		} else if h.InvalidGroup == "I" {
-			return fmt.Sprintf("FZ400: Выбрана группа инвалидности I %s, %d", h.Sex, h.Age)
+		} else if h.IsInvalid && h.InvalidGroup == "I" {
+			return fmt.Sprintf("FZ400: Проверить право на ТСР и СПН. I гр. инвалидности: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+		} else if h.IsInvalid && h.InvalidGroup == "II" {
+			return fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age)
 		} else {
 			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
 		}
