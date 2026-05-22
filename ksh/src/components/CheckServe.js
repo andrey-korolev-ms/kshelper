@@ -21,10 +21,10 @@ const CheckServe = () => {
     const { name, checked } = e.target;
 
     if (checked) {
-      // Запускаем таймер на 1 секунду
+      // Запускаем таймер на 3 секунды
       timersRef.current[name] = setTimeout(() => {
         setCompleted((prev) => ({ ...prev, [name]: true }));
-      }, 2000);
+      }, 3000);
     } else {
       // Снимаем галочку — отменяем таймер
       if (timersRef.current[name]) {

@@ -28,42 +28,64 @@ type ExplanationRequest struct {
 }
 
 // ExplanationResponse для ответа с пояснением
+type Response struct {
+	FZ400 string `json:"fz400"`
+	FZ166 string `json:"fz166"`
+}
+
 type ExplanationResponse struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
-// GetAllExplanations для получения всех пояснений
 type GetAllExplanationsResponse struct {
 	Explanations map[string]ExplanationResponse `json:"explanations"`
 }
 
 type FZ400 struct{}
 
-func (f *FZ400) Check(h *Human, d *Doc) string {
+func (f *FZ400) Check(h *Human, d *Doc) Response {
 	switch h.Sex {
 	case "male":
 		if h.Age > 65 && h.IPK > 30 && !h.IsInvalid {
-			return fmt.Sprintf("Проверить право на СПН: Гражданину уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
+			return Response{
+				FZ400: fmt.Sprintf("Проверить право на СПН: Гражданину уже %d лет. Величина ИПК: %f \n Требуются документы %s \n", h.Age, h.IPK, d.Document),
+			}
 		} else if h.IsInvalid && h.InvalidGroup == "I" {
-			return fmt.Sprintf("FZ400: Проверить право на ТСР и СПН. I гр. инвалидности: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: Проверить право на ТСР и СПН. I гр. инвалидности: Гражданин %s, возраст %d лет \n", h.Sex, h.Age),
+			}
 		} else if h.IsInvalid && h.InvalidGroup == "II" {
-			return fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age),
+			}
 		} else {
-			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age),
+			}
 		}
 	case "female":
 		if h.Age > 60 && h.IPK > 30 && !h.IsInvalid {
-			return fmt.Sprintf("Проверить право на СПН: Гражданин уже %d лет. Величина ИПК: %f \\n Требуются документы %s \n", h.Age, h.IPK, d.Document)
+			return Response{
+				FZ400: fmt.Sprintf("Проверить право на СПН: Гражданин уже %d лет. Величина ИПК: %f \n Требуются документы %s \n", h.Age, h.IPK, d.Document),
+			}
 		} else if h.IsInvalid {
-			return fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: Проверить право на ТСР: Гражданин %s, возраст %d лет \n", h.Sex, h.Age),
+			}
 		} else if h.InvalidGroup == "II" {
-			return fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: Выбрана группа инвалидности II %s, %d", h.Sex, h.Age),
+			}
 		} else {
-			return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ400: fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age),
+			}
 		}
 	}
-	return fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age)
+	return Response{
+		FZ400: fmt.Sprintf("FZ400: %s, %d", h.Sex, h.Age),
+	}
 }
 
 type FZ166 struct{}
@@ -116,22 +138,32 @@ var explanationDB = ExplanationDB{
 	},
 }
 
-func (f *FZ166) Check(h *Human, d *Doc) string {
+func (f *FZ166) Check(h *Human, d *Doc) Response {
 	switch h.Sex {
 	case "male":
 		if h.Age > 55 {
-			return fmt.Sprintf("Гражданину уже %d лет. Через %d лет можно получить социальную пенсию", h.Age, 70-h.Age)
+			return Response{
+				FZ166: fmt.Sprintf("Гражданину уже %d лет. Через %d лет можно получить социальную пенсию", h.Age, 70-h.Age),
+			}
 		} else {
-			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ166: fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age),
+			}
 		}
 	case "female":
 		if h.Age > 55 {
-			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ166: fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age),
+			}
 		} else {
-			return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+			return Response{
+				FZ166: fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age),
+			}
 		}
 	}
-	return fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age)
+	return Response{
+		FZ166: fmt.Sprintf("FZ166: %s, %d", h.Sex, h.Age),
+	}
 }
 
 // GetExplanation возвращает пояснение по ключу
@@ -190,14 +222,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	f400 := &FZ400{}
 	f166 := &FZ166{}
 
-	//result := fmt.Sprintf("FZ400:\nFZ166:\n%s, %s\n%s, %s", f400.Check(&h, d), h.Sex, f166.Check(&h, d), h.Sex)
-	//
-	result := struct {
-		FZ400 string `json:"fz400"`
-		FZ166 string `json:"fz166"`
-	}{
-		FZ400: f400.Check(&h, d),
-		FZ166: f166.Check(&h, d),
+	result := &Response{
+		FZ400: f400.Check(&h, d).FZ400,
+		FZ166: f166.Check(&h, d).FZ166,
 	}
 	if err := json.NewEncoder(w).Encode(result); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
